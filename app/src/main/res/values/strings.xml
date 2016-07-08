@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Sleepytime</string>
+    <string name="action_settings">Settings</string>
+    <string name="pick_hour">(hours)</string>
+    <string name="pick_minutes">(minutes)</string>
+    <string name="wake_up">I have to wake up at&#8230;</string>
+    <string name="plan_to_fall_asleep">I plan to fall asleep at&#8230;</string>
+    <string name="pick_time">Set time and calculate</string>
+    <string name="or">or</string>
+    <string name="go_to_bed_now">Find out when to get up if you go to bed now</string>
+    <string name="zzz">zzz</string>
+</resources>
