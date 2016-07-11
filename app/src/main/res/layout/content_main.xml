@@ -18,28 +18,39 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+
                 android:text="@string/wake_up"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@color/colorText" />
 
             <Button
-                android:id="@+id/calculate_time_wake_up"
+                android:id="@+id/calculate_time_wake_up_button"
                 android:layout_below="@id/text_view_have_to_wake_up"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
+
                 android:text="@string/pick_time"
-                android:onClick="onClickSetTime"
-                android:background="@color/colorPrimary" />
+                android:textColor="@android:color/white"
+                android:background="@color/colorPrimary"
+                android:stateListAnimator="@null"
+                android:onClick="onClickSetTimeWakeUp"
+                />
 
             <TextView
                 android:id="@+id/text_view_or"
-                android:layout_below="@id/calculate_time_wake_up"
+                android:layout_below="@id/calculate_time_wake_up_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
+                android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_alignEnd="@id/text_view_have_to_wake_up"
+                android:layout_alignRight="@id/text_view_have_to_wake_up"
+
                 android:text="@string/or"
                 android:textStyle="italic"
                 android:textSize="@dimen/text_size_or" />
@@ -48,31 +59,39 @@
                 android:id="@+id/text_view_plan_to_fall_asleep"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_alignStart="@id/text_view_have_to_wake_up"
+                android:layout_alignEnd="@id/text_view_have_to_wake_up"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_below="@id/text_view_or"
+                android:layout_alignLeft="@id/text_view_have_to_wake_up"
+                android:layout_alignRight="@id/text_view_have_to_wake_up"
+
                 android:text="@string/plan_to_fall_asleep"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@color/colorText" />
 
             <Button
-                android:id="@+id/calculate_time_plan_to_fall_asleep"
+                android:id="@+id/calculate_time_plan_to_fall_asleep_button"
                 android:layout_below="@id/text_view_plan_to_fall_asleep"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
+
                 android:text="@string/pick_time"
+                android:textColor="@android:color/white"
                 android:background="@color/colorPrimary"
-                android:onClick="onClickSetTime"/>
+                android:stateListAnimator="@null"
+                android:onClick="onClickSetTimeWakeUp"/>
 
             <TextView
                 android:id="@+id/text_view_or_2"
-                android:layout_below="@id/calculate_time_plan_to_fall_asleep"
+                android:layout_below="@id/calculate_time_plan_to_fall_asleep_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
+
                 android:text="@string/or"
                 android:textStyle="italic"
                 android:textSize="@dimen/text_size_or" />
@@ -82,20 +101,28 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_alignLeft="@id/text_view_have_to_wake_up"
+                android:layout_alignRight="@id/text_view_have_to_wake_up"
                 android:layout_below="@id/text_view_or_2"
+                android:layout_alignStart="@id/text_view_have_to_wake_up"
+                android:layout_alignEnd="@id/text_view_have_to_wake_up"
+
                 android:text="@string/go_to_bed_now"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@color/colorText" />
 
             <Button
+                android:id="@+id/calculate_time_now_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/text_view_go_to_bed_now"
                 android:layout_centerHorizontal="true"
                 android:background="@color/colorPrimary"
+
                 android:text="@string/zzz"
-                android:onClick=""/>
+                android:textColor="@android:color/white"
+                android:stateListAnimator="@null"
+                android:onClick="onClickGoToBedNowButton"/>
     </RelativeLayout>
 
 </ScrollView>

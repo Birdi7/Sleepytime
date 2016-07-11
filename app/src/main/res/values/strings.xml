@@ -9,4 +9,12 @@
     <string name="or">or</string>
     <string name="go_to_bed_now">Find out when to get up if you go to bed now</string>
     <string name="zzz">zzz</string>
+    <string name="text_intro_fall_asleep">You should try to fall asleep at one of the following times:</string>
+    <string name="text_intro_wake_up">You should try to wake up at one of the following times:</string>
+    <string name="text_intro_time_go_to_bed_now">If you head to bed right now, you should try to wake up at one of the following times:</string>
+    <string name="alarm_message_go_to_bed">Hey! Is\'s time to go to bed</string>
+    <string name="alarm_message_wake_up">Hey! It\'s time to wake up!</string>
+    <string name="set_your_average_time_to_fall_asleep">Set your time to fall asleep </string>
+    <string name="set_time">Set</string>
+    <string name="cancel">Cancel</string>
 </resources>
