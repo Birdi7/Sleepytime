@@ -33,7 +33,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-
                 android:text="@string/pick_time"
                 android:textColor="@android:color/white"
                 android:background="@color/colorPrimary"
@@ -43,13 +42,11 @@
 
             <TextView
                 android:id="@+id/text_view_or"
-                android:layout_below="@id/calculate_time_wake_up_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_alignEnd="@id/text_view_have_to_wake_up"
-                android:layout_alignRight="@id/text_view_have_to_wake_up"
+                android:layout_below="@+id/calculate_time_wake_up_button"
+                android:layout_centerHorizontal="true"
 
                 android:text="@string/or"
                 android:textStyle="italic"
@@ -98,14 +95,14 @@
 
             <TextView
                 android:id="@+id/text_view_go_to_bed_now"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_alignLeft="@id/text_view_have_to_wake_up"
-                android:layout_alignRight="@id/text_view_have_to_wake_up"
-                android:layout_below="@id/text_view_or_2"
                 android:layout_alignStart="@id/text_view_have_to_wake_up"
                 android:layout_alignEnd="@id/text_view_have_to_wake_up"
+                android:layout_below="@id/text_view_or_2"
+                android:layout_alignLeft="@id/text_view_have_to_wake_up"
+                android:layout_alignRight="@id/text_view_have_to_wake_up"
 
                 android:text="@string/go_to_bed_now"
                 android:textAppearance="?android:attr/textAppearanceLarge"
