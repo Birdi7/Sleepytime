@@ -27,7 +27,7 @@
                 android:textColor="@color/colorText" />
 
             <Button
-                android:id="@+id/calculate_time_wake_up_button"
+                android:id="@+id/calculate_time_to_wake_up_button"
                 android:layout_below="@id/text_view_have_to_wake_up"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_width="wrap_content"
@@ -45,7 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_below="@+id/calculate_time_wake_up_button"
+                android:layout_below="@+id/calculate_time_to_wake_up_button"
                 android:layout_centerHorizontal="true"
 
                 android:text="@string/or"

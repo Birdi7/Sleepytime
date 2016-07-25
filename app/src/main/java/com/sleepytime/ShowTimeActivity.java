@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.AlarmClock;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
 import android.view.Gravity;
@@ -20,17 +21,16 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.Locale;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ShowTimeActivity extends AppCompatActivity {
     public static final String EXTRA_ID = "EXTRA_ID";
     public static final String EXTRA_HOUR = "EXTRA_HOUR";
     public static final String EXTRA_MINUTES = "EXTRA_MINUTES";
+    private final int minutesInHour = 60;
 
-    private int[] idsOfTexts = {R.string.text_intro_fall_asleep, R.string.text_intro_wake_up, R.string.text_intro_time_go_to_bed_now};
+    private int[] introTexts = {R.string.text_intro_fall_asleep, R.string.text_intro_wake_up, R.string.text_intro_time_go_to_bed_now};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,87 +38,122 @@ public class ShowTimeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_show_time);
 
         final int id = getIntent().getIntExtra(EXTRA_ID, -1);
-        ((TextView) findViewById(R.id.text_intro_show_time))
-                .setText(getString(idsOfTexts[id])); //set text
-
         int hour = getIntent().getIntExtra(EXTRA_HOUR, -1);
         int minutes = getIntent().getIntExtra(EXTRA_MINUTES, -1);
+        checkNonNegative(id, hour, minutes); //handle bug.
 
-        if (hour == -1 || minutes == -1) {
-            Toast.makeText(ShowTimeActivity.this, "Bug!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        final ArrayList<int[]> alarms = (id == 0) ? calculateTimeToFallAsleep(hour, minutes) : calculateTimeToGoToBed(hour, minutes);
-        String[] buttons = makeButtons(alarms);
+        ((TextView) findViewById(R.id.text_intro_show_time))
+                .setText(getString(introTexts[id])); //set intro text
+
+        final List<MyAlarm> myAlarms = (id == 0) ? calculateTimeToFallAsleep(hour, minutes) : calculateTimeToGoToBed(hour, minutes); // list of myAlarms
 
 
         ListView listView = (ListView) findViewById(R.id.list_view_with_alarms);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(ShowTimeActivity.this,
-                android.R.layout.simple_list_item_1,
-                buttons);
+        ArrayAdapter<MyAlarm> adapter = new ArrayAdapter<>(ShowTimeActivity.this,
+                android.R.layout.simple_selectable_list_item,
+                myAlarms);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> var1, View var2, int var3, long var4) {
-                int[] alarmTime = alarms.get(var3);
-
-                Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
-                intent.putExtra(AlarmClock.EXTRA_MESSAGE, getString((id == 0) ? R.string.alarm_message_go_to_bed : R.string.alarm_message_wake_up));
-                intent.putExtra(AlarmClock.EXTRA_HOUR, alarmTime[0]);
-                intent.putExtra(AlarmClock.EXTRA_MINUTES, alarmTime[1]);
-                startActivity(intent);
+                MyAlarm myAlarm = myAlarms.get((int) var4);
+                myAlarm.setMessage(getString((id == 0) ? R.string.alarm_message_go_to_bed : R.string.alarm_message_wake_up));
+                setAlarm(myAlarm);
             }
         });
     }
 
-    private ArrayList<int[]> calculateTimeToFallAsleep(int hour, int minutes) {
-        ArrayList<int[]> alarms = new ArrayList<>();
-        minutes -= getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(MainActivity.PREF_USER_TIME, 14);
-        minutes += hour * 60;
-        if (minutes - 60*9 >= 0)
-            minutes -= 60 * 9;
-        else {
-            minutes = 24 * 60 + minutes - 60 * 9;
-        }
-        for (int i = 0; i < 4; i++) {
-            int alarmHour = minutes / 60;
-            int alarmMinutes = minutes % 60;
-            alarms.add(new int[] {alarmHour, alarmMinutes});
-            minutes += 1.5 * 60; //1.5 hour multiplies minutes in a hour
-        }
-        return alarms;
+    /**
+     * Start AlarmClock.ACTION_SET_ALARM intent
+     * @param myAlarm alarm represents as object of com.sleepytime.MyAlarm
+     */
+    private void setAlarm(MyAlarm myAlarm) {
+        Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
+        intent.putExtra(AlarmClock.EXTRA_MESSAGE, myAlarm.getMessage());
+        intent.putExtra(AlarmClock.EXTRA_HOUR, myAlarm.getHour());
+        intent.putExtra(AlarmClock.EXTRA_MINUTES, myAlarm.getMinutes());
+        startActivity(intent);
     }
 
-    private ArrayList<int[]> calculateTimeToGoToBed(int hour, int minutes) {
-        ArrayList<int[]> alarms = new ArrayList<>();
-        hour += (minutes + getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(MainActivity.PREF_USER_TIME, -1)) / 60;
-        minutes = (minutes + getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(MainActivity.PREF_USER_TIME, -1)) % 60;
-        minutes += hour * 60;
-        for (int i = 0; i < 6; i++) {
-            minutes += 90;
-            int newHour = (minutes / 60) % 24;
-            int newMin = minutes % 60;
-            alarms.add(new int[] {newHour, newMin});
-        }
-        return alarms;
-    }
-
-    private String[] makeButtons(ArrayList<int[]> alarms) {
-        ArrayList<String> buttons = new ArrayList<>();
-        for (int[] alarm : alarms) {
-            int hour = alarm[0];
-            int minutes = alarm[1];
-            String newTime;
-            if (DateFormat.is24HourFormat(ShowTimeActivity.this))
-                newTime = String.format(Locale.getDefault(), "%02d:%02d", hour, minutes);
-            else {
-                String ampm = (hour < 12) ? " am" : " pm";
-                newTime = String.format(Locale.getDefault(), "%02d:%02d", hour % 12, minutes).concat(ampm);
+    /**
+     * Check if all numbers are non negative
+     * @param numbers
+     * @throws IllegalStateException if at least one number is negative
+     *
+     */
+    private void checkNonNegative(int... numbers) {
+        for (int i = 0; i < numbers.length; i++) {
+            if (numbers[i] < 0) {
+                String message = "%s is negative!";
+                switch (i) {
+                    case 0:
+                        message = String.format(message, "Id");
+                        break;
+                    case 1:
+                        message = String.format(message, "Hour");
+                        break;
+                    case 2:
+                        message = String.format(message, "Minutes");
+                        break;
+                    default:
+                        message = String.format(message, String.valueOf(i));
+                }
+                throw new IllegalStateException(message);
             }
-            buttons.add(newTime);
         }
-        return buttons.toArray(new String[1]);
     }
+
+    @NonNull
+    private List<MyAlarm> calculateTimeToFallAsleep(int hour, int minutes) {
+        List<MyAlarm> myAlarms = new LinkedList<>();
+        int userTimeToFallAsleep = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(MainActivity.PREF_USER_TIME, 14);
+
+        if (minutes - userTimeToFallAsleep >= 0) {
+            minutes -= userTimeToFallAsleep;
+        }
+        else {
+            minutes -= userTimeToFallAsleep;
+            minutes = minutesInHour - Math.abs(minutes);
+        }
+
+        minutes += hour * minutesInHour;
+
+        if (minutes - minutesInHour *9 >= 0)
+            minutes -= minutesInHour * 9;
+        else {
+            minutes = 24 * minutesInHour + minutes - minutesInHour * 9;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            int alarmHour = minutes / minutesInHour;
+            int alarmMinutes = minutes % minutesInHour;
+            boolean is24Hour = DateFormat.is24HourFormat(ShowTimeActivity.this);
+            myAlarms.add(new MyAlarm(alarmHour, alarmMinutes, is24Hour));
+            minutes += 90; // + 1.5 hour
+        }
+        return myAlarms;
+    }
+
+
+    @NonNull
+    private List<MyAlarm> calculateTimeToGoToBed(int hour, int minutes) {
+        List<MyAlarm> myAlarms = new LinkedList<>();
+        int userTimeToFallAsleep = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(MainActivity.PREF_USER_TIME, 14);
+
+        hour += (minutes + userTimeToFallAsleep) / minutesInHour;
+        minutes = (minutes + userTimeToFallAsleep) % minutesInHour;
+        minutes += hour * minutesInHour;
+        for (int i = 0; i < 6; i++) {
+            minutes += 90; // + 1.5 hour
+            int alarmHour = (minutes / minutesInHour) % 24;
+            int alarmMin = minutes % minutesInHour;
+            boolean is24Hour = DateFormat.is24HourFormat(ShowTimeActivity.this);
+            myAlarms.add(new MyAlarm(alarmHour, alarmMin, is24Hour));
+        }
+        return myAlarms;
+    }
+
+
 
 
     @Override
@@ -128,27 +163,29 @@ public class ShowTimeActivity extends AppCompatActivity {
     }
 
     @TargetApi(11)
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+
+        final SharedPreferences sharedPreferences = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE);
 
         switch (id) {
             case R.id.set_time_to_fall_asleep:
                 final NumberPicker picker = new NumberPicker(this);
                 picker.setMinValue(0);
                 picker.setMaxValue(30);
-                picker.setValue(getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(MainActivity.PREF_USER_TIME, -1));
+                picker.setValue(sharedPreferences.getInt(MainActivity.PREF_USER_TIME, 14));
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(ShowTimeActivity.this);
                 builder.setTitle(R.string.set_your_average_time_to_fall_asleep);
                 builder.setPositiveButton(R.string.set_time, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        SharedPreferences.Editor editor = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putInt(MainActivity.PREF_USER_TIME, picker.getValue());
                         editor.commit();
                     }
                 });
-
                 builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -170,10 +207,4 @@ public class ShowTimeActivity extends AppCompatActivity {
     }
 
 }
-/*
- TODO: HOW TO SET ALARM:
-    Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
-    intent.putExtra(AlarmClock.EXTRA_HOUR, 23);
-    intent.putExtra(AlarmClock.EXTRA_MINUTES, 22);
-    startActivity(intent);*/
-//DateFormat.is24HourFormat(this));
+

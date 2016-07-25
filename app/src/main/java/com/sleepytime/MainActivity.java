@@ -17,7 +17,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.NumberPicker;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -26,6 +25,7 @@ public class MainActivity extends AppCompatActivity
 
     public static final String PREFERENCES_NAME = "sleepytime_preferences";
     public static final String PREF_USER_TIME = "PREF_USER_TIME";
+
     private int onClickButtonId;
 
     @Override
@@ -46,13 +46,14 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
+        final SharedPreferences sharedPreferences = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE);
+
         switch (id) {
             case R.id.set_time_to_fall_asleep:
                 final NumberPicker picker = new NumberPicker(this);
                 picker.setMinValue(0);
                 picker.setMaxValue(30);
-                final SharedPreferences sharedPreferences = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE);
-                picker.setValue(sharedPreferences.getInt(PREF_USER_TIME, 14));
+                picker.setValue(sharedPreferences.getInt(MainActivity.PREF_USER_TIME, 14));
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle(R.string.set_your_average_time_to_fall_asleep);
@@ -60,11 +61,10 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putInt(PREF_USER_TIME, picker.getValue());
+                        editor.putInt(MainActivity.PREF_USER_TIME, picker.getValue());
                         editor.commit();
                     }
                 });
-
                 builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity
                 ));
                 builder.setView(parent);
                 builder.create().show();
-                Toast.makeText(MainActivity.this, String.valueOf(sharedPreferences.getInt(PREF_USER_TIME, 14)), Toast.LENGTH_SHORT).show();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -88,9 +87,9 @@ public class MainActivity extends AppCompatActivity
 
 
     public void onClickSetTimeWakeUp(View view) {
-        if (view == findViewById(R.id.calculate_time_wake_up_button))
+        if (view.getId() == R.id.calculate_time_to_wake_up_button)
             onClickButtonId = 0;
-        else if (view == findViewById(R.id.calculate_time_plan_to_fall_asleep_button))
+        else if (view.getId() == R.id.calculate_time_plan_to_fall_asleep_button)
             onClickButtonId = 1;
 
         Calendar calendar = Calendar.getInstance();
@@ -101,7 +100,6 @@ public class MainActivity extends AppCompatActivity
                 calendar.get(Calendar.MINUTE),
                 DateFormat.is24HourFormat(this));
         dialog.show();
-        view.getId();
     }
 
     public void onTimeSet(TimePicker picker, int hour, int minutes) {
