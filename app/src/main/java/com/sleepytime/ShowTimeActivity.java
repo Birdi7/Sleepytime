@@ -2,8 +2,10 @@ package com.sleepytime;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.AlarmClock;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +21,7 @@ import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -70,7 +73,7 @@ public class ShowTimeActivity extends AppCompatActivity {
 
     private ArrayList<int[]> calculateTimeToFallAsleep(int hour, int minutes) {
         ArrayList<int[]> alarms = new ArrayList<>();
-        minutes -= UserData.getUserTimeToFallAsleep();
+        minutes -= getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(MainActivity.PREF_USER_TIME, 14);
         minutes += hour * 60;
         if (minutes - 60*9 >= 0)
             minutes -= 60 * 9;
@@ -88,8 +91,8 @@ public class ShowTimeActivity extends AppCompatActivity {
 
     private ArrayList<int[]> calculateTimeToGoToBed(int hour, int minutes) {
         ArrayList<int[]> alarms = new ArrayList<>();
-        hour += (minutes + UserData.getUserTimeToFallAsleep()) / 60;
-        minutes = (minutes + UserData.getUserTimeToFallAsleep()) % 60;
+        hour += (minutes + getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(MainActivity.PREF_USER_TIME, -1)) / 60;
+        minutes = (minutes + getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(MainActivity.PREF_USER_TIME, -1)) % 60;
         minutes += hour * 60;
         for (int i = 0; i < 6; i++) {
             minutes += 90;
@@ -133,14 +136,16 @@ public class ShowTimeActivity extends AppCompatActivity {
                 final NumberPicker picker = new NumberPicker(this);
                 picker.setMinValue(0);
                 picker.setMaxValue(30);
-                picker.setValue(UserData.getUserTimeToFallAsleep());
+                picker.setValue(getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(MainActivity.PREF_USER_TIME, -1));
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(ShowTimeActivity.this);
                 builder.setTitle(R.string.set_your_average_time_to_fall_asleep);
                 builder.setPositiveButton(R.string.set_time, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        UserData.setUserTimeToFallAsleep(picker.getValue());
+                        SharedPreferences.Editor editor = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+                        editor.putInt(MainActivity.PREF_USER_TIME, picker.getValue());
+                        editor.commit();
                     }
                 });
 

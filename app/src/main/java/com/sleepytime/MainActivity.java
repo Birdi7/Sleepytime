@@ -17,14 +17,15 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.NumberPicker;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity
         implements TimePickerDialog.OnTimeSetListener {
 
-
-    public static final String USER_TIME_TO_FALL_ASLEEP_EXTRA = "USER_TIME_TO_FALL_ASLEEP_EXTRA";
+    public static final String PREFERENCES_NAME = "sleepytime_preferences";
+    public static final String PREF_USER_TIME = "PREF_USER_TIME";
     private int onClickButtonId;
 
     @Override
@@ -33,9 +34,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
-        UserData.setUserTimeToFallAsleep(sharedPreferences.getInt(USER_TIME_TO_FALL_ASLEEP_EXTRA, 14));
     }
 
     @Override
@@ -53,14 +51,17 @@ public class MainActivity extends AppCompatActivity
                 final NumberPicker picker = new NumberPicker(this);
                 picker.setMinValue(0);
                 picker.setMaxValue(30);
-                picker.setValue(UserData.getUserTimeToFallAsleep());
+                final SharedPreferences sharedPreferences = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE);
+                picker.setValue(sharedPreferences.getInt(PREF_USER_TIME, 14));
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle(R.string.set_your_average_time_to_fall_asleep);
                 builder.setPositiveButton(R.string.set_time, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        UserData.setUserTimeToFallAsleep(picker.getValue());
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putInt(PREF_USER_TIME, picker.getValue());
+                        editor.commit();
                     }
                 });
 
@@ -79,20 +80,12 @@ public class MainActivity extends AppCompatActivity
                 ));
                 builder.setView(parent);
                 builder.create().show();
+                Toast.makeText(MainActivity.this, String.valueOf(sharedPreferences.getInt(PREF_USER_TIME, 14)), Toast.LENGTH_SHORT).show();
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public void onStop() {
-        super.onStop();
-
-        SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(USER_TIME_TO_FALL_ASLEEP_EXTRA, UserData.getUserTimeToFallAsleep());
-        editor.apply();
-
-    }
 
     public void onClickSetTimeWakeUp(View view) {
         if (view == findViewById(R.id.calculate_time_wake_up_button))
@@ -112,10 +105,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onTimeSet(TimePicker picker, int hour, int minutes) {
-        setAlarm(hour, minutes, onClickButtonId);
+        showAlarms(hour, minutes, onClickButtonId);
     }
 
-    private void setAlarm(int hour, int minutes, int id) {
+    private void showAlarms(int hour, int minutes, int id) {
         Intent intent = new Intent(MainActivity.this, ShowTimeActivity.class);
         intent.putExtra(ShowTimeActivity.EXTRA_HOUR, hour);
         intent.putExtra(ShowTimeActivity.EXTRA_MINUTES, minutes);
@@ -125,6 +118,6 @@ public class MainActivity extends AppCompatActivity
 
     public void onClickGoToBedNowButton(View view) {
         Calendar calendar = Calendar.getInstance();
-        setAlarm(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), 2);
+        showAlarms(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), 2);
     }
 }
