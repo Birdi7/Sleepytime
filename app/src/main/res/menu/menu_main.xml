@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.sleepytime.MainActivity">
+    <item
+        android:id="@+id/set_time_to_fall_asleep"
+        android:orderInCategory="100"
+        android:title="@string/set_your_average_time_to_fall_asleep"
+        app:showAsAction="never" />
+
+</menu>
