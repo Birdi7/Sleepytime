@@ -17,8 +17,10 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.NumberPicker;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.util.Calendar;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
         implements TimePickerDialog.OnTimeSetListener {
@@ -26,12 +28,16 @@ public class MainActivity extends AppCompatActivity
     public static final String PREFERENCES_NAME = "sleepytime_preferences";
     public static final String PREFERENCES_USER_TIME = "PREFERENCES_USER_TIME";
     public static final String PREFERENCES_EXTRA_ALARM = "PREFERENCES_EXTRA_ALARM";
+    public static final String PREFERENCES_SHOW_ADD_EXTRA_ALARM_DESCRIPTION = "PREFERENCES_SHOW_ADD_EXTRA_ALARM_DESCRIPTION";
 
     private int onClickButtonId;
+    public static int numberOfClickedOnAddExtraAlarmButton = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MainActivity.numberOfClickedOnAddExtraAlarmButton = 0;
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -52,7 +58,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
         final SharedPreferences sharedPreferences = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE);
 
         switch (id) {
@@ -89,13 +94,25 @@ public class MainActivity extends AppCompatActivity
                 builder.create().show();
                 return true;
             case R.id.add_extra_alarm:
+                if (++MainActivity.numberOfClickedOnAddExtraAlarmButton == 7) {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean(MainActivity.PREFERENCES_SHOW_ADD_EXTRA_ALARM_DESCRIPTION, false);
+                    editor.apply();
+                }
+
+                boolean showDescription = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(MainActivity.PREFERENCES_SHOW_ADD_EXTRA_ALARM_DESCRIPTION, true);
+
+                if (!item.isChecked() && showDescription) {
+                    String description = getString(R.string.description_add_extra_alarm);
+                    Toast.makeText(MainActivity.this, String.format(Locale.getDefault(), description, 7 - MainActivity.numberOfClickedOnAddExtraAlarmButton), Toast.LENGTH_SHORT).show();
+                }
+
+
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putBoolean(MainActivity.PREFERENCES_EXTRA_ALARM, !item.isChecked());
                 editor.commit();
-
                 item.setChecked(!item.isChecked());
                 invalidateOptionsMenu();
-
                 return true;
         }
         return super.onOptionsItemSelected(item);

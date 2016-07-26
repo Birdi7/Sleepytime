@@ -18,4 +18,5 @@
     <string name="set_time">Set</string>
     <string name="cancel">Cancel</string>
     <string name="add_extra_alarm">Extra alarm after 30 minutes</string>
+    <string name="description_add_extra_alarm">This button adds extra alarm after 30 minutes by your primary alarm.Your can disable this description by tapping %d time(s) on button.</string>
 </resources>

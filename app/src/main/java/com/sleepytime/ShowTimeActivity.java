@@ -21,9 +21,11 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 public class ShowTimeActivity extends AppCompatActivity {
     public static final String EXTRA_ID = "EXTRA_ID";
@@ -41,6 +43,8 @@ public class ShowTimeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_time);
+
+        MainActivity.numberOfClickedOnAddExtraAlarmButton = 0;
 
         final int id = getIntent().getIntExtra(EXTRA_ID, -1);
         int hour = getIntent().getIntExtra(EXTRA_HOUR, -1);
@@ -189,8 +193,6 @@ public class ShowTimeActivity extends AppCompatActivity {
     }
 
 
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -202,6 +204,7 @@ public class ShowTimeActivity extends AppCompatActivity {
 
         return true;
     }
+
 
     @TargetApi(11)
     @Override
@@ -244,6 +247,19 @@ public class ShowTimeActivity extends AppCompatActivity {
                 builder.create().show();
                 return true;
             case R.id.add_extra_alarm:
+                if (++MainActivity.numberOfClickedOnAddExtraAlarmButton == 7) {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean(MainActivity.PREFERENCES_SHOW_ADD_EXTRA_ALARM_DESCRIPTION, false);
+                    editor.apply();
+                }
+
+                boolean showDescription = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(MainActivity.PREFERENCES_SHOW_ADD_EXTRA_ALARM_DESCRIPTION, true);
+
+                if (!item.isChecked() && showDescription) {
+                    String description = getString(R.string.description_add_extra_alarm);
+                    Toast.makeText(ShowTimeActivity.this, String.format(Locale.getDefault(), description, 7 - MainActivity.numberOfClickedOnAddExtraAlarmButton), Toast.LENGTH_SHORT).show();
+                }
+
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putBoolean(MainActivity.PREFERENCES_EXTRA_ALARM, !item.isChecked());
                 editor.commit();
@@ -264,4 +280,3 @@ public class ShowTimeActivity extends AppCompatActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 }
-
