@@ -17,4 +17,5 @@
     <string name="set_your_average_time_to_fall_asleep">Set your time to fall asleep </string>
     <string name="set_time">Set</string>
     <string name="cancel">Cancel</string>
+    <string name="add_extra_alarm">Extra alarm after 30 minutes</string>
 </resources>

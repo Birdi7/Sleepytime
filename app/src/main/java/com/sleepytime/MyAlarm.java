@@ -51,7 +51,6 @@ class MyAlarm {
         MyAlarm myAlarm = (MyAlarm) o;
         return getHour() == myAlarm.getHour() &&
                 getMinutes() == myAlarm.getMinutes() &&
-                is24Hour == myAlarm.is24Hour &&
                 Objects.equals(getMessage(), myAlarm.getMessage());
     }
 

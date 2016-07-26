@@ -24,7 +24,8 @@ public class MainActivity extends AppCompatActivity
         implements TimePickerDialog.OnTimeSetListener {
 
     public static final String PREFERENCES_NAME = "sleepytime_preferences";
-    public static final String PREF_USER_TIME = "PREF_USER_TIME";
+    public static final String PREFERENCES_USER_TIME = "PREFERENCES_USER_TIME";
+    public static final String PREFERENCES_EXTRA_ALARM = "PREFERENCES_EXTRA_ALARM";
 
     private int onClickButtonId;
 
@@ -39,6 +40,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        MenuItem extraAlarmView = menu.findItem(R.id.add_extra_alarm);
+        boolean isChecked = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(MainActivity.PREFERENCES_EXTRA_ALARM, false);
+        extraAlarmView.setChecked(isChecked);
+        extraAlarmView.setIcon(isChecked ? R.drawable.ic_alarm_off_white : R.drawable.ic_alarm_add_white);
+
         return true;
     }
 
@@ -53,7 +60,7 @@ public class MainActivity extends AppCompatActivity
                 final NumberPicker picker = new NumberPicker(this);
                 picker.setMinValue(0);
                 picker.setMaxValue(30);
-                picker.setValue(sharedPreferences.getInt(MainActivity.PREF_USER_TIME, 14));
+                picker.setValue(sharedPreferences.getInt(MainActivity.PREFERENCES_USER_TIME, 14));
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle(R.string.set_your_average_time_to_fall_asleep);
@@ -61,7 +68,7 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putInt(MainActivity.PREF_USER_TIME, picker.getValue());
+                        editor.putInt(MainActivity.PREFERENCES_USER_TIME, picker.getValue());
                         editor.commit();
                     }
                 });
@@ -81,10 +88,32 @@ public class MainActivity extends AppCompatActivity
                 builder.setView(parent);
                 builder.create().show();
                 return true;
+            case R.id.add_extra_alarm:
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean(MainActivity.PREFERENCES_EXTRA_ALARM, !item.isChecked());
+                editor.commit();
+
+                item.setChecked(!item.isChecked());
+                invalidateOptionsMenu();
+
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        invalidateOptionsMenu();
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.add_extra_alarm);
+        boolean isChecked = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(MainActivity.PREFERENCES_EXTRA_ALARM, false);
+        item.setIcon(isChecked ? R.drawable.ic_alarm_off_white : R.drawable.ic_alarm_add_white);
+        return super.onPrepareOptionsMenu(menu);
+    }
 
     public void onClickSetTimeWakeUp(View view) {
         if (view.getId() == R.id.calculate_time_to_wake_up_button)

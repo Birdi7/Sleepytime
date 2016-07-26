@@ -21,6 +21,7 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,9 +29,13 @@ public class ShowTimeActivity extends AppCompatActivity {
     public static final String EXTRA_ID = "EXTRA_ID";
     public static final String EXTRA_HOUR = "EXTRA_HOUR";
     public static final String EXTRA_MINUTES = "EXTRA_MINUTES";
+
     private final int minutesInHour = 60;
 
     private int[] introTexts = {R.string.text_intro_fall_asleep, R.string.text_intro_wake_up, R.string.text_intro_time_go_to_bed_now};
+
+    private boolean isExtraAlarmSet;
+    private MyAlarm alarm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,16 +68,46 @@ public class ShowTimeActivity extends AppCompatActivity {
         });
     }
 
+
     /**
      * Start AlarmClock.ACTION_SET_ALARM intent
+     *
      * @param myAlarm alarm represents as object of com.sleepytime.MyAlarm
      */
     private void setAlarm(MyAlarm myAlarm) {
+        isExtraAlarmSet = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(MainActivity.PREFERENCES_EXTRA_ALARM, false);
+        alarm = myAlarm;
+
+        Intent alarmIntent = new Intent(AlarmClock.ACTION_SET_ALARM);
+        alarmIntent.putExtra(AlarmClock.EXTRA_MESSAGE, myAlarm.getMessage());
+        alarmIntent.putExtra(AlarmClock.EXTRA_HOUR, myAlarm.getHour());
+        alarmIntent.putExtra(AlarmClock.EXTRA_MINUTES, myAlarm.getMinutes());
+        startActivity(alarmIntent);
+    }
+
+    /**
+     * @param myAlarm alarm represents as object of com.sleepytime.MyAlarm
+     */
+    private void setExtraAlarm(MyAlarm myAlarm) {
+        int newHour = myAlarm.getHour() + (myAlarm.getMinutes() + 30) / 60;
+        int newMinutes = (myAlarm.getMinutes() + 30) % 60;
+
         Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
         intent.putExtra(AlarmClock.EXTRA_MESSAGE, myAlarm.getMessage());
-        intent.putExtra(AlarmClock.EXTRA_HOUR, myAlarm.getHour());
-        intent.putExtra(AlarmClock.EXTRA_MINUTES, myAlarm.getMinutes());
+        intent.putExtra(AlarmClock.EXTRA_HOUR, newHour);
+        intent.putExtra(AlarmClock.EXTRA_MINUTES, newMinutes);
+        intent.putExtra(AlarmClock.EXTRA_SKIP_UI, true);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (isExtraAlarmSet) {
+            setExtraAlarm(alarm);
+        }
+        isExtraAlarmSet = false;
+        alarm = null;
     }
 
     /**
@@ -106,7 +141,7 @@ public class ShowTimeActivity extends AppCompatActivity {
     @NonNull
     private List<MyAlarm> calculateTimeToFallAsleep(int hour, int minutes) {
         List<MyAlarm> myAlarms = new LinkedList<>();
-        int userTimeToFallAsleep = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(MainActivity.PREF_USER_TIME, 14);
+        int userTimeToFallAsleep = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(MainActivity.PREFERENCES_USER_TIME, 14);
 
         if (minutes - userTimeToFallAsleep >= 0) {
             minutes -= userTimeToFallAsleep;
@@ -138,7 +173,7 @@ public class ShowTimeActivity extends AppCompatActivity {
     @NonNull
     private List<MyAlarm> calculateTimeToGoToBed(int hour, int minutes) {
         List<MyAlarm> myAlarms = new LinkedList<>();
-        int userTimeToFallAsleep = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(MainActivity.PREF_USER_TIME, 14);
+        int userTimeToFallAsleep = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(MainActivity.PREFERENCES_USER_TIME, 14);
 
         hour += (minutes + userTimeToFallAsleep) / minutesInHour;
         minutes = (minutes + userTimeToFallAsleep) % minutesInHour;
@@ -159,6 +194,12 @@ public class ShowTimeActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        MenuItem item = menu.findItem(R.id.add_extra_alarm);
+        boolean isChecked = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(MainActivity.PREFERENCES_EXTRA_ALARM, false);
+        item.setChecked(isChecked);
+        item.setIcon(isChecked ? R.drawable.ic_alarm_off_white : R.drawable.ic_alarm_add_white);
+
         return true;
     }
 
@@ -174,7 +215,7 @@ public class ShowTimeActivity extends AppCompatActivity {
                 final NumberPicker picker = new NumberPicker(this);
                 picker.setMinValue(0);
                 picker.setMaxValue(30);
-                picker.setValue(sharedPreferences.getInt(MainActivity.PREF_USER_TIME, 14));
+                picker.setValue(sharedPreferences.getInt(MainActivity.PREFERENCES_USER_TIME, 14));
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(ShowTimeActivity.this);
                 builder.setTitle(R.string.set_your_average_time_to_fall_asleep);
@@ -182,7 +223,7 @@ public class ShowTimeActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putInt(MainActivity.PREF_USER_TIME, picker.getValue());
+                        editor.putInt(MainActivity.PREFERENCES_USER_TIME, picker.getValue());
                         editor.commit();
                     }
                 });
@@ -202,9 +243,25 @@ public class ShowTimeActivity extends AppCompatActivity {
                 builder.setView(parent);
                 builder.create().show();
                 return true;
+            case R.id.add_extra_alarm:
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean(MainActivity.PREFERENCES_EXTRA_ALARM, !item.isChecked());
+                editor.commit();
+
+                item.setChecked(!item.isChecked());
+                invalidateOptionsMenu();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.add_extra_alarm);
+        boolean isChecked = getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(MainActivity.PREFERENCES_EXTRA_ALARM, false);
+        item.setIcon(isChecked ? R.drawable.ic_alarm_off_white : R.drawable.ic_alarm_add_white);
+        return super.onPrepareOptionsMenu(menu);
+    }
 }
 
