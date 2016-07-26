@@ -57,11 +57,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignStart="@id/text_view_have_to_wake_up"
-                android:layout_alignEnd="@id/text_view_have_to_wake_up"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginEnd="@dimen/activity_vertical_margin"
                 android:layout_below="@id/text_view_or"
                 android:layout_alignLeft="@id/text_view_have_to_wake_up"
-                android:layout_alignRight="@id/text_view_have_to_wake_up"
 
                 android:text="@string/plan_to_fall_asleep"
                 android:textAppearance="?android:attr/textAppearanceLarge"
@@ -99,10 +98,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_alignStart="@id/text_view_have_to_wake_up"
-                android:layout_alignEnd="@id/text_view_have_to_wake_up"
+                android:layout_marginEnd="@dimen/activity_vertical_margin"
+
                 android:layout_below="@id/text_view_or_2"
                 android:layout_alignLeft="@id/text_view_have_to_wake_up"
-                android:layout_alignRight="@id/text_view_have_to_wake_up"
 
                 android:text="@string/go_to_bed_now"
                 android:textAppearance="?android:attr/textAppearanceLarge"
