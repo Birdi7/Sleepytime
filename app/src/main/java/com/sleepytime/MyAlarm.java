@@ -1,13 +1,14 @@
 package com.sleepytime;
 
-/**
- * My own class represents alarm
- * Created by Egor on 7/25/2016.
- */
 
 import java.util.Locale;
 import java.util.Objects;
 
+/**
+ * My own class represents alarm
+ *
+ * Created by Egor on 7/25/2016.
+ */
 class MyAlarm {
     private final int hour;
     private final int minutes;
@@ -44,19 +45,25 @@ class MyAlarm {
         this.message = message;
     }
 
+    /**
+     * This method is not depend on is24Hour
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MyAlarm myAlarm = (MyAlarm) o;
-        return getHour() == myAlarm.getHour() &&
-                getMinutes() == myAlarm.getMinutes() &&
-                Objects.equals(getMessage(), myAlarm.getMessage());
+        return this.getHour() == myAlarm.getHour() &&
+                this.getMinutes() == myAlarm.getMinutes() &&
+                Objects.equals(this.getMessage(), myAlarm.getMessage());
     }
 
+    /**
+     * This method is not depend on is24Hour
+     */
     @Override
     public int hashCode() {
-        return Objects.hash(getHour(), getMinutes(), is24Hour, getMessage());
+        return Objects.hash(getHour(), getMinutes(), getMessage());
     }
 
     /**

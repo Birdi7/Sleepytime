@@ -22,7 +22,7 @@
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
 
-                android:text="@string/wake_up"
+                android:text="@string/main_text_wake_up"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@color/colorText" />
 
@@ -62,7 +62,7 @@
                 android:layout_below="@id/text_view_or"
                 android:layout_alignLeft="@id/text_view_have_to_wake_up"
 
-                android:text="@string/plan_to_fall_asleep"
+                android:text="@string/main_text_plan_to_fall_asleep"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@color/colorText" />
 
@@ -103,7 +103,7 @@
                 android:layout_below="@id/text_view_or_2"
                 android:layout_alignLeft="@id/text_view_have_to_wake_up"
 
-                android:text="@string/go_to_bed_now"
+                android:text="@string/main_text_go_to_bed_now"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@color/colorText" />
 
@@ -112,6 +112,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/text_view_go_to_bed_now"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_centerHorizontal="true"
                 android:background="@color/colorPrimary"
 
